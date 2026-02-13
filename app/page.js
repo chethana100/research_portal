@@ -22,6 +22,38 @@ export default function ResearchPortal() {
       reader.readAsDataURL(file);
     });
 
+  const resizeImage = (file) =>
+    new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const MAX_WIDTH = 1600;
+        const MAX_HEIGHT = 1600;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => {
+          resolve(new File([blob], file.name, { type: "image/jpeg" }));
+        }, "image/jpeg", 0.7);
+      };
+      img.src = URL.createObjectURL(file);
+    });
+
   const handleFile = useCallback(async (file) => {
     if (!file) return;
     const validTypes = ["application/pdf", "image/png", "image/jpeg", "image/jpg"];
@@ -29,11 +61,24 @@ export default function ResearchPortal() {
       setError("Please upload a PDF or image file (PNG, JPG).");
       return;
     }
+
+    if (file.type === "application/pdf" && file.size > 4.5 * 1024 * 1024) {
+      setError("PDF is too large for Vercel (Max 4.5MB). Please try a smaller file.");
+      return;
+    }
+
+    let processedFile = file;
+    if (file.type.startsWith("image/") && file.size > 2 * 1024 * 1024) {
+      setProcessingStep("Compressing image...");
+      processedFile = await resizeImage(file);
+      setProcessingStep("");
+    }
+
     setError(null);
     setResult(null);
-    setUploadedFile(file);
+    setUploadedFile(processedFile);
     try {
-      const b64 = await readFileAsBase64(file);
+      const b64 = await readFileAsBase64(processedFile);
       setFileBase64(b64);
     } catch {
       setError("Failed to read file.");
