@@ -1,6 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
+export const maxDuration = 60; // Set timeout to 60 seconds for Gemini extraction
+
 const genAI = new GoogleGenerativeAI(process.env.chethana || "");
 
 export async function POST(req) {
@@ -85,7 +87,11 @@ export async function POST(req) {
 
         return NextResponse.json(data);
     } catch (error) {
-        console.error("Extraction error:", error);
+        console.error("Extraction error detailed:", {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+        });
         return NextResponse.json({ error: "Failed to extract data: " + error.message }, { status: 500 });
     }
 }
