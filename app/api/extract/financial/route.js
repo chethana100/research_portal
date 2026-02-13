@@ -15,6 +15,7 @@ export async function POST(req) {
         }
 
         if (!process.env.chethana) {
+            console.warn("API Key 'chethana' not found in environment variables. Returning demo data.");
             return NextResponse.json(getMockData());
         }
 
@@ -131,7 +132,7 @@ function getMockData() {
                 ]
             }
         ],
-        "extraction_notes": "Sample data from Tata Motors statement.",
+        "extraction_notes": "DEMO MODE: API Key 'chethana' not found. This is TATA MOTORS sample data. Set your key on Vercel to extract from your own documents.",
         "confidence": 95
     };
 }
