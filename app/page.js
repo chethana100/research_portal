@@ -67,6 +67,13 @@ export default function ResearchPortal() {
       });
 
       setProcessingStep("Parsing results...");
+
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await response.text();
+        throw new Error(`Server error (non-JSON): ${response.status} - ${text.substring(0, 100)}`);
+      }
+
       const data = await response.json();
 
       if (!response.ok) {
