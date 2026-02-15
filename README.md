@@ -15,7 +15,7 @@ A simple and efficient tool for extracting structured data from financial statem
 2. Set up environment variables:
    Create a `.env.local` and add your key:
    ```
-   chethana=your_api_key_here
+   
    ```
 3. Run the portal:
    ```bash
