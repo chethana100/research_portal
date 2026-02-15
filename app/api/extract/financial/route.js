@@ -15,10 +15,10 @@ export async function POST(req) {
         }
 
         const apiKey = process.env.chethana;
-        console.log("API Key found in env:", !!apiKey);
+        console.log("API Key Check - Found:", !!apiKey, "Ends with:", apiKey ? apiKey.slice(-4) : "N/A");
 
         if (!apiKey || apiKey === "YOUR_GOOGLE_GEMINI_API_KEY_HERE") {
-            console.warn("Valid API Key not found. Returning demo data.");
+            console.warn("API Key missing or placeholder. Returning demo data.");
             return NextResponse.json(getMockData());
         }
 
@@ -55,15 +55,19 @@ export async function POST(req) {
 
         return NextResponse.json(data);
     } catch (error) {
-        console.error("CRITICAL EXTRACTION ERROR:", error.message);
+        console.error("AI SERVICE ERROR:", {
+            message: error.message,
+            status: error.status,
+            stack: error.stack?.slice(0, 100)
+        });
 
-        // Fallback to demo data for common errors to keep UI working
+        // Fallback to demo data for common errors
         if (error.message.includes("404") || error.message.includes("403") || error.message.includes("key") || error.message.includes("models")) {
-            console.warn("API Error. Falling back to demo data so user isn't blocked.");
+            console.warn("AI extraction failed. Falling back to demo data.");
             return NextResponse.json(getMockData());
         }
 
-        return NextResponse.json({ error: "Failed to extract data: " + error.message }, { status: 500 });
+        return NextResponse.json({ error: "Service Error: " + error.message }, { status: 500 });
     }
 }
 
