@@ -62,8 +62,8 @@ export default function ResearchPortal() {
       return;
     }
 
-    if (file.type === "application/pdf" && file.size > 4.5 * 1024 * 1024) {
-      setError("PDF is too large for Vercel (Max 4.5MB). Please try a smaller file.");
+    if (file.type === "application/pdf" && file.size > 20 * 1024 * 1024) {
+      setError("PDF is too large (Max 20MB). Please try a smaller file.");
       return;
     }
 
